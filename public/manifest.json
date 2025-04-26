@@ -1,0 +1,42 @@
+{
+  "short_name": "TravelTales",
+  "name": "TravelTales – A Global Journey Through Stories",
+  "description": "Share and explore travel stories enriched with real-time country data on TravelTales.",
+  "lang": "en-US",
+  "start_url": "",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1976d2",
+  "background_color": "#ffffff",
+  "categories": ["travel", "blog", "social"],
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "16x16 24x24 32x32 64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Story",
+      "short_name": "Write",
+      "description": "Compose a new travel blog post"
+    },
+    {
+      "name": "My Feed",
+      "short_name": "Feed",
+      "description": "View posts from people you follow"
+    }
+  ]
+}
