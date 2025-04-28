@@ -10,6 +10,10 @@ export function fetchCsrfToken() {
         });
 }
 
+export function fetchProfile() {
+    return apiClient.get('/auth/profile').then(r => r.data);
+}
+
 export function register(email, password, username) {
     return apiClient.post('/auth/register', { email, password, username });
 }
