@@ -1,32 +1,20 @@
-import React                       from 'react';
-import { useNavigate,
-    Link as RouterLink }      from 'react-router-dom';
-import { useForm }                 from 'react-hook-form';
-import { yupResolver }             from '@hookform/resolvers/yup';
-import * as yup                    from 'yup';
-import {
-    Container, Box, TextField, Typography,
-    Button, Link, Alert
-}                                   from '@mui/material';
-import { useAuth }                 from '../hooks';
-
-const schema = yup.object({
-    email   : yup.string().email().required(),
-    password: yup.string().required()
-});
+import React, { useState } from 'react';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { Container, Box, Typography, TextField, Button, Alert, Link } from '@mui/material';
+import { useAuth } from '../hooks';
 
 export default function Login() {
     const { login } = useAuth();
-    const nav       = useNavigate();
-    const { register, handleSubmit,
-        formState:{ errors, isSubmitting } } =
-        useForm({ resolver: yupResolver(schema) });
-    const [err, setErr] = React.useState('');
+    const navigate  = useNavigate();
+    const [email, setEmail]       = useState('');
+    const [password, setPassword] = useState('');
+    const [err, setErr]           = useState('');
 
-    const onSubmit = async data => {
+    const handle = async e => {
+        e.preventDefault();
         try {
-            await login(data.email, data.password);
-            nav('/profile');
+            await login(email,password);
+            navigate('/posts');
         } catch (e) {
             setErr(e.response?.data?.error || 'Login failed');
         }
@@ -35,24 +23,18 @@ export default function Login() {
     return (
         <Container maxWidth="xs">
             <Box sx={{ mt:8, display:'flex', flexDirection:'column', alignItems:'center' }}>
-                <Typography component="h1" variant="h5">Sign in</Typography>
-
+                <Typography variant="h5">Login</Typography>
                 {err && <Alert severity="error" sx={{ mt:2, width:'100%' }}>{err}</Alert>}
-
-                <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt:1, width:'100%' }}>
-                    <TextField label="Email"    margin="normal" fullWidth {...register('email')}
-                               error={!!errors.email} />
-                    <TextField label="Password" type="password" margin="normal" fullWidth
-                               {...register('password')} error={!!errors.password} />
-
-                    <Button variant="contained" fullWidth sx={{ mt:3 }} disabled={isSubmitting}>
+                <Box component="form" onSubmit={handle} sx={{ mt:1, width:'100%' }}>
+                    <TextField fullWidth margin="normal" label="Email" value={email}
+                               onChange={e=>setEmail(e.target.value)} required/>
+                    <TextField fullWidth margin="normal" label="Password" type="password"
+                               value={password} onChange={e=>setPassword(e.target.value)} required/>
+                    <Button type="submit" fullWidth variant="contained" sx={{ mt:3 }}>
                         Sign In
                     </Button>
-
-                    <Box textAlign="center" sx={{ mt:2 }}>
-                        <Link component={RouterLink} to="/register" variant="body2">
-                            {"Don't have an account? Register"}
-                        </Link>
+                    <Box sx={{ mt:2, textAlign:'center' }}>
+                        <Link component={RouterLink} to="/register">Don&apos;t have an account? Register</Link>
                     </Box>
                 </Box>
             </Box>
