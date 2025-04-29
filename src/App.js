@@ -1,20 +1,17 @@
-import React                                   from 'react';
-import { BrowserRouter, Routes, Route, Navigate }
-    from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import AuthProvider from './features/auth/AuthProvider';
+import ProtectedRoute from './components/ProtectedRoute';
+import NavBar       from './components/NavBar';
 
-import AuthProvider        from './features/auth/AuthProvider.jsx';
-import ProtectedRoute      from './components/ProtectedRoute.jsx';
-import NavBar              from './components/NavBar.jsx';
+import PostList     from './features/posts/pages/PostList';
+import PostDetail   from './features/posts/pages/PostDetail';
+import CreatePost   from './features/posts/pages/CreatePost';
+import EditPost     from './features/posts/pages/EditPost';
+import Profile      from './features/auth/pages/Profile';
 
-/* Auth pages */
-import Login    from './features/auth/pages/Login.jsx';
-import Register from './features/auth/pages/Register.jsx';
-
-/* Post pages */
-import PostList   from './features/posts/pages/PostList.jsx';
-import PostDetail from './features/posts/pages/PostDetail.jsx';
-import CreatePost from './features/posts/pages/CreatePost.jsx';
-import EditPost   from './features/posts/pages/EditPost.jsx';
+import Login        from './features/auth/pages/Login';
+import Register     from './features/auth/pages/Register';
 
 export default function App() {
     return (
@@ -23,19 +20,45 @@ export default function App() {
                 <NavBar />
 
                 <Routes>
+                    {/* root → list posts */}
                     <Route path="/" element={<Navigate to="/posts" replace />} />
 
-                    {/* Public blog routes */}
-                    <Route path="/posts"         element={<PostList   />} />
-                    <Route path="/posts/:id"     element={<PostDetail />} />
+                    {/* PUBLIC */}
+                    <Route path="/posts"       element={<PostList />} />
+                    <Route path="/posts/:id"   element={<PostDetail />} />
 
-                    {/* Auth-protected CRUD */}
-                    <Route path="/posts/new"      element={<ProtectedRoute><CreatePost /></ProtectedRoute>} />
-                    <Route path="/posts/:id/edit" element={<ProtectedRoute><EditPost   /></ProtectedRoute>} />
+                    {/* PROTECTED */}
+                    <Route
+                        path="/posts/new"
+                        element={
+                            <ProtectedRoute>
+                                <CreatePost />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/posts/:id/edit"
+                        element={
+                            <ProtectedRoute>
+                                <EditPost />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/profile"
+                        element={
+                            <ProtectedRoute>
+                                <Profile />
+                            </ProtectedRoute>
+                        }
+                    />
 
-                    {/* Auth pages */}
-                    <Route path="/login"    element={<Login    />} />
+                    {/* AUTH PAGES */}
+                    <Route path="/login"    element={<Login />} />
                     <Route path="/register" element={<Register />} />
+
+                    {/* catch-all back to posts */}
+                    <Route path="*" element={<Navigate to="/posts" replace />} />
                 </Routes>
             </BrowserRouter>
         </AuthProvider>
