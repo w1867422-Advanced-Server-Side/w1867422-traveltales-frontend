@@ -16,3 +16,12 @@ export const profile = () =>
 
 export const logout = () =>
     apiClient.post('/auth/logout').then(r => r.data);
+
+export const getFollowing    = ()    =>
+    apiClient.get('/follows/following').then(r => r.data);
+
+export const followUser      = id    =>
+    apiClient.post(`/follows/${id}/follow`);
+
+export const unfollowUser    = id    =>
+    apiClient.delete(`/follows/${id}/follow`);

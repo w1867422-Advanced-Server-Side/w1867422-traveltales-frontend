@@ -32,3 +32,55 @@ export const useDeletePost = id =>{
         }
     });
 };
+
+// fetch vote counts
+export function useVotes(postId) {
+    return useQuery({
+        queryKey: ['votes', postId],
+        queryFn: () => api.getVotes(postId)
+    });
+}
+
+// fetch my vote on this post (true/false/null)
+export function useUserVote(postId) {
+    return useQuery({
+        queryKey: ['vote', postId],
+        queryFn: () => api.getUserVote(postId)
+    });
+}
+
+// like
+export function useLikeMutation() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: api.likePost,
+        onSuccess: (_data, postId) => {
+            qc.invalidateQueries({ queryKey: ['votes', postId] });
+            qc.invalidateQueries({ queryKey: ['vote', postId] });
+        }
+    });
+}
+
+// dislike
+export function useDislikeMutation() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: api.dislikePost,
+        onSuccess: (_data, postId) => {
+            qc.invalidateQueries({ queryKey: ['votes', postId] });
+            qc.invalidateQueries({ queryKey: ['vote', postId] });
+        }
+    });
+}
+
+// unvote
+export function useUnvoteMutation() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: api.unvotePost,
+        onSuccess: (_data, postId) => {
+            qc.invalidateQueries({ queryKey: ['votes', postId] });
+            qc.invalidateQueries({ queryKey: ['vote', postId] });
+        }
+    });
+}
