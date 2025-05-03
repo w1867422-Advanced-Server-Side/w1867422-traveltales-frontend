@@ -2,17 +2,39 @@ import React, { useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useInView } from 'react-intersection-observer';
 import {
-    Container, Grid, Card, CardActionArea,
-    CardMedia, CardContent, Typography
+    Container,
+    Grid,
+    Card,
+    CardMedia,
+    CardContent,
+    Typography,
+    Button
 } from '@mui/material';
-
 import { usePosts } from '../hooks';
 import Spinner from '../../../components/Spinner';
+
+/**
+ * Strip HTML tags and return plain text.
+ */
+function stripHtml(html) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+}
+
+/**
+ * Return the first `maxLen` characters of the plain-text story,
+ * adding "..." if it was longer.
+ */
+function excerpt(html, maxLen = 150) {
+    const txt = stripHtml(html);
+    return txt.length > maxLen ? txt.slice(0, maxLen) + '...' : txt;
+}
 
 export default function PostList() {
     const {
         data,
-        status,                       // 'idle' | 'loading' | 'success' | 'error'
+        status,
         error,
         fetchNextPage,
         hasNextPage,
@@ -21,56 +43,63 @@ export default function PostList() {
 
     const { ref, inView } = useInView();
 
-    /* auto-fetch next page on sentinel */
     useEffect(() => {
         if (inView && hasNextPage) fetchNextPage();
     }, [inView, hasNextPage, fetchNextPage]);
 
-    /* ---------- guard states ---------- */
-    if (status === 'idle' || status === 'loading')
+    if (status === 'idle' || status === 'loading') {
         return <Spinner />;
-
-    if (status === 'error')
+    }
+    if (status === 'error') {
         return (
-            <Container sx={{ mt:4 }}>
+            <Container sx={{ mt: 4 }}>
                 <Typography color="error">
-                    Failed to load posts: {error.message}
+                    Error loading posts: {error.message}
                 </Typography>
             </Container>
         );
+    }
 
-    /* status === 'success' and data is defined */
     const posts = (data?.pages ?? []).flat();
 
     return (
-        <Container sx={{ mt:4 }}>
+        <Container sx={{ mt: 4 }}>
             <Grid container spacing={2}>
-                {posts.map(p => (
-                    <Grid item xs={12} sm={6} md={4} key={p.id}>
+                {posts.map(post => (
+                    <Grid item xs={12} sm={6} md={4} key={post.id}>
                         <Card>
-                            <CardActionArea component={RouterLink} to={`/posts/${p.id}`}>
-                                {p.images?.[0] && (
-                                    <CardMedia
-                                        component="img"
-                                        height="140"
-                                        image={p.images[0].url}
-                                        alt={p.title}
-                                    />
-                                )}
-                                <CardContent>
-                                    <Typography variant="h6">{p.title}</Typography>
-                                    <Typography variant="body2" color="text.secondary">
-                                        by {p.author} on{' '}
-                                        {new Date(p.visit_date).toLocaleDateString()}
-                                    </Typography>
-                                </CardContent>
-                            </CardActionArea>
+                            {post.images?.[0] && (
+                                <CardMedia
+                                    component="img"
+                                    height="140"
+                                    image={post.images[0].url}
+                                    alt={post.title}
+                                />
+                            )}
+
+                            <CardContent>
+                                <Typography variant="h6" gutterBottom>
+                                    {post.title}
+                                </Typography>
+
+                                <Typography variant="body2" color="text.secondary" paragraph>
+                                    {excerpt(post.content)}
+                                </Typography>
+
+                                <Button
+                                    component={RouterLink}
+                                    to={`/posts/${post.id}`}
+                                    size="small"
+                                >
+                                    Read More
+                                </Button>
+                            </CardContent>
                         </Card>
                     </Grid>
                 ))}
             </Grid>
 
-            {/* sentinel for infinite scroll */}
+            {/* infinite-scroll sentinel */}
             <div ref={ref} />
 
             {isFetchingNextPage && <Spinner />}

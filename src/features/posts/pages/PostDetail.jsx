@@ -1,13 +1,19 @@
 import React, { useEffect } from 'react';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
 import {
-    Container, Box, Typography, Grid,
-    CardMedia, Button, IconButton, Snackbar, Alert
+    Container,
+    Box,
+    Typography,
+    Grid,
+    CardMedia,
+    Button,
+    IconButton,
+    Alert
 } from '@mui/material';
 import Spinner from '../../../components/Spinner';
-import ThumbUpIcon   from '@mui/icons-material/ThumbUp';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import PersonAddIcon    from '@mui/icons-material/PersonAdd';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 
 import { usePost, useDeletePost } from '../hooks';
@@ -31,7 +37,7 @@ export default function PostDetail() {
     const { user, bootDone } = useAuth();
 
     // 1) Load the post
-    const { data: post, status, error } = usePost(id);
+    const { data: post, status } = usePost(id);
 
     // 2) Deletion
     const del = useDeletePost(id);
@@ -44,7 +50,7 @@ export default function PostDetail() {
     // 3) Follow / Unfollow
     const { data: following } = useFollowing();
     const isFollowing = !!following?.find(u => u.id === post?.author_id);
-    const followMut   = useFollowMutation();
+    const followMut = useFollowMutation();
     const unfollowMut = useUnfollowMutation();
 
     const handleFollow = () => {
@@ -61,35 +67,33 @@ export default function PostDetail() {
     };
 
     // 4) Votes
-    const { data: votes }    = useVotes(id);
+    const { data: votes } = useVotes(id);
     const { data: userVote } = useUserVote(id);
-    const likeMut    = useLikeMutation();
+    const likeMut = useLikeMutation();
     const dislikeMut = useDislikeMutation();
-    const unvoteMut  = useUnvoteMutation();
+    const unvoteMut = useUnvoteMutation();
 
+    // 👍 like / undo‑like
     const handleLike = () => {
         if (!bootDone) return;
-        if (!user) {
-            navigate('/login', { replace: true });
-            return;
-        }
+        if (!user) return navigate('/login', { replace:true });
+
         if (userVote === true) {
-            unvoteMut.mutate(id);
+            unvoteMut.mutate({ id });     // ← object form
         } else {
-            likeMut.mutate(id);
+            likeMut.mutate({ id });
         }
     };
 
+// 👎 dislike / undo‑dislike
     const handleDislike = () => {
         if (!bootDone) return;
-        if (!user) {
-            navigate('/login', { replace: true });
-            return;
-        }
+        if (!user) return navigate('/login', { replace:true });
+
         if (userVote === false) {
-            unvoteMut.mutate(id);
+            unvoteMut.mutate({ id });
         } else {
-            dislikeMut.mutate(id);
+            dislikeMut.mutate({ id });
         }
     };
 
@@ -104,24 +108,22 @@ export default function PostDetail() {
         return <Alert severity="warning">Post not found</Alert>;
     }
 
-    // 6) Owner check
+    // 6) Ownership
     const isOwner = user?.id === post.author_id;
 
     return (
         <Container sx={{ mt: 4 }}>
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                <Button component={RouterLink} to="/posts">
-                    ← Back
-                </Button>
+                <Button component={RouterLink} to="/posts">← Back</Button>
 
-                {/* follow button (only for non-owner) */}
-                {user && !isOwner && (
+                {/* follow/unfollow for non-owners */}
+                {!isOwner && (
                     <IconButton onClick={handleFollow} sx={{ ml: 2 }}>
-                        {isFollowing ? <PersonRemoveIcon/> : <PersonAddIcon/>}
+                        {isFollowing ? <PersonRemoveIcon /> : <PersonAddIcon />}
                     </IconButton>
                 )}
 
-                {/* owner controls */}
+                {/* edit/delete for owner */}
                 {isOwner && (
                     <Box sx={{ ml: 'auto' }}>
                         <Button
@@ -141,68 +143,47 @@ export default function PostDetail() {
                 )}
             </Box>
 
-            {/* title & meta */}
             <Typography variant="h3" gutterBottom>
                 {post.title}
             </Typography>
-            <Typography
-                variant="subtitle1"
-                color="text.secondary"
-                gutterBottom
-            >
-                by {post.author} on{' '}
-                {new Date(post.visit_date).toLocaleDateString()}
+            <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+                by {post.author} on {new Date(post.visit_date).toLocaleDateString()}
             </Typography>
 
-            {/* like/dislike bar */}
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <IconButton
-                    onClick={handleLike}
-                    disabled={likeMut.isLoading || unvoteMut.isLoading}
-                >
-                    <ThumbUpIcon
-                        color={userVote === true ? 'primary' : 'inherit'}
-                    />
-                </IconButton>
-                <Typography>{votes?.likes ?? 0}</Typography>
+            {/* Like/Dislike bar (hidden for owner) */}
+            {!isOwner && (
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                    <IconButton
+                        onClick={handleLike}
+                        disabled={likeMut.isLoading || unvoteMut.isLoading}
+                    >
+                        <ThumbUpIcon color={userVote === true ? 'primary' : 'inherit'} />
+                    </IconButton>
+                    <Typography sx={{ mx: 1 }}>
+                        {votes?.likes ?? 0}
+                    </Typography>
 
-                <IconButton
-                    onClick={handleDislike}
-                    sx={{ ml: 2 }}
-                    disabled={dislikeMut.isLoading || unvoteMut.isLoading}
-                >
-                    <ThumbDownIcon
-                        color={userVote === false ? 'error' : 'inherit'}
-                    />
-                </IconButton>
-                <Typography>{votes?.dislikes ?? 0}</Typography>
-            </Box>
+                    <IconButton
+                        onClick={handleDislike}
+                        disabled={dislikeMut.isLoading || unvoteMut.isLoading}
+                        sx={{ ml: 2 }}
+                    >
+                        <ThumbDownIcon color={userVote === false ? 'error' : 'inherit'} />
+                    </IconButton>
+                    <Typography sx={{ mx: 1 }}>
+                        {votes?.dislikes ?? 0}
+                    </Typography>
+                </Box>
+            )}
 
-            {/* post content */}
-            <Box
-                dangerouslySetInnerHTML={{ __html: post.content }}
-                sx={{ mb: 3 }}
-            />
-            <Typography variant="subtitle2">
-                Country: {post.country}
-            </Typography>
+            <Box dangerouslySetInnerHTML={{ __html: post.content }} sx={{ mb: 3 }} />
+            <Typography variant="subtitle2">Country: {post.country}</Typography>
 
-            {/* images gallery */}
             {post.images?.length > 0 && (
                 <Grid container spacing={2} sx={{ mt: 2 }}>
                     {post.images.map(img => (
-                        <Grid
-                            item
-                            xs={12}
-                            sm={6}
-                            md={4}
-                            key={img.id}
-                        >
-                            <CardMedia
-                                component="img"
-                                image={img.url}
-                                alt=""
-                            />
+                        <Grid item xs={12} sm={6} md={4} key={img.id}>
+                            <CardMedia component="img" image={img.url} alt="" />
                         </Grid>
                     ))}
                 </Grid>

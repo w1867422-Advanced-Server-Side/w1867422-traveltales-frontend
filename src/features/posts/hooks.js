@@ -33,54 +33,43 @@ export const useDeletePost = id =>{
     });
 };
 
-// fetch vote counts
-export function useVotes(postId) {
-    return useQuery({
-        queryKey: ['votes', postId],
-        queryFn: () => api.getVotes(postId)
-    });
-}
+/* get total likes/dislikes */
+export const useVotes = id =>
+    useQuery({ queryKey: ['votes', id], queryFn: () => api.getVotes(id) });
 
-// fetch my vote on this post (true/false/null)
-export function useUserVote(postId) {
-    return useQuery({
-        queryKey: ['vote', postId],
-        queryFn: () => api.getUserVote(postId)
-    });
-}
+/* get what *I* voted (true | false | null) */
+export const useUserVote = id =>
+    useQuery({ queryKey: ['userVote', id], queryFn: () => api.getUserVote(id) });
 
-// like
-export function useLikeMutation() {
+/* helper to invalidate both caches */
+const invalidate = (qc, id) => {
+    qc.invalidateQueries(['votes', id]);
+    qc.invalidateQueries(['userVote', id]);
+};
+
+/* like */
+export const useLikeMutation = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: api.likePost,
-        onSuccess: (_data, postId) => {
-            qc.invalidateQueries({ queryKey: ['votes', postId] });
-            qc.invalidateQueries({ queryKey: ['vote', postId] });
-        }
+        mutationFn: ({ id }) => api.likePost(id),
+        onSuccess : (_, { id }) => invalidate(qc, id)
     });
-}
+};
 
-// dislike
-export function useDislikeMutation() {
+/* dislike */
+export const useDislikeMutation = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: api.dislikePost,
-        onSuccess: (_data, postId) => {
-            qc.invalidateQueries({ queryKey: ['votes', postId] });
-            qc.invalidateQueries({ queryKey: ['vote', postId] });
-        }
+        mutationFn: ({ id }) => api.dislikePost(id),
+        onSuccess : (_, { id }) => invalidate(qc, id)
     });
-}
+};
 
-// unvote
-export function useUnvoteMutation() {
+/* un‑vote (undo) */
+export const useUnvoteMutation = () => {
     const qc = useQueryClient();
     return useMutation({
-        mutationFn: api.unvotePost,
-        onSuccess: (_data, postId) => {
-            qc.invalidateQueries({ queryKey: ['votes', postId] });
-            qc.invalidateQueries({ queryKey: ['vote', postId] });
-        }
+        mutationFn: ({ id }) => api.unvotePost(id),
+        onSuccess : (_, { id }) => invalidate(qc, id)
     });
-}
+};

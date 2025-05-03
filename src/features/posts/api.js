@@ -13,9 +13,8 @@ export const updatePost = (id,formData)=> apiClient.put(`/posts/${id}`, formData
 
 export const deletePost = (id)=> apiClient.delete(`/posts/${id}`).then(r=>r.data);
 
-export const getVotes    = postId => apiClient.get(`/posts/${postId}/votes`).then(r => r.data);
-export const getUserVote = postId => apiClient.get(`/posts/${postId}/vote`).then(r => r.data);
-
-export const likePost    = postId => apiClient.post(`/posts/${postId}/like`);
-export const dislikePost = postId => apiClient.post(`/posts/${postId}/dislike`);
-export const unvotePost  = postId => apiClient.delete(`/posts/${postId}/vote`);
+export const getVotes     = id => apiClient.get(`/posts/${id}/votes`).then(r => r.data);          // { likes, dislikes }
+export const getUserVote  = id => apiClient.get(`/posts/${id}/vote`).then(r => r.data.vote);      // true | false | null
+export const likePost     = id => apiClient.post(`/posts/${id}/like`);
+export const dislikePost  = id => apiClient.post(`/posts/${id}/dislike`);
+export const unvotePost   = id => apiClient.delete(`/posts/${id}/vote`);
