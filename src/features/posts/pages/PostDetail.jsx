@@ -8,7 +8,7 @@ import {
     CardMedia,
     Button,
     IconButton,
-    Alert
+    Alert, Link
 } from '@mui/material';
 import Spinner from '../../../components/Spinner';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
@@ -30,6 +30,8 @@ import {
     useUnfollowMutation
 } from '../../auth/hooks';
 import { useAuth } from '../../auth/hooks';
+import CommentForm from '../../comments/components/CommentForm';
+import CommentList from '../../comments/components/CommentList';
 
 export default function PostDetail() {
     const { id } = useParams();
@@ -188,6 +190,26 @@ export default function PostDetail() {
                     ))}
                 </Grid>
             )}
+
+            {/* Comments Section */}
+            <Box sx={{ mt: 4 }}>
+                <Typography variant="h6" gutterBottom>
+                    Comments
+                </Typography>
+
+                {user ? (
+                    <CommentForm postId={id} />
+                ) : (
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        <Link component={RouterLink} to="/login">
+                            Log in
+                        </Link>{' '}
+                        to post a comment
+                    </Typography>
+                )}
+
+                <CommentList postId={id} />
+            </Box>
 
             {/* show delete errors */}
             {del.isError && (

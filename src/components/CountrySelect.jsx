@@ -33,13 +33,17 @@ export default function CountrySelect({ value, onChange }) {
             onChange={(_e,newVal)=>onChange(newVal)}
             getOptionLabel={getOptionLabel}
             isOptionEqualToValue={(o,v)=>o.code===v.code}
-            renderOption={(props,opt)=>(
-                <li {...props}>
-                    <Avatar src={opt.flag} sx={{ width:24, height:24, mr:1 }}/>
-                    {getOptionLabel(opt)}
+            renderOption={(props, option) => (
+                <li {...props} key={option.code}>
+                    <Avatar
+                        src={option.flag}
+                        sx={{ width: 24, height: 24, mr: 1 }}
+                    />
+                    {getOptionLabel(option)}
                 </li>
             )}
-            renderInput={params=>(
+            /* renderInput stays the same */
+            renderInput={params => (
                 <TextField
                     {...params}
                     label="Country"

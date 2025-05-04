@@ -82,7 +82,7 @@ export default function PostList() {
                                     {post.title}
                                 </Typography>
 
-                                <Typography variant="body2" color="text.secondary" paragraph>
+                                <Typography variant="body2" color="text.secondary" component="p" gutterBottom>
                                     {excerpt(post.content)}
                                 </Typography>
 
