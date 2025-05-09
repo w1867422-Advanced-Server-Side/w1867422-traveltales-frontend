@@ -9,7 +9,7 @@ export const useAuth = () => useContext(AuthContext);
 export function useFollowing() {
     return useQuery({
         queryKey: ['following'],
-        queryFn: api.getFollowing
+        queryFn: api.listFollowing
     });
 }
 

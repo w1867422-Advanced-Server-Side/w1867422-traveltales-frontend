@@ -116,7 +116,7 @@ export default function PostDetail() {
     return (
         <Container sx={{ mt: 4 }}>
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-                <Button component={RouterLink} to="/posts">← Back</Button>
+                <Button onClick={() => navigate(-1)}>← Back</Button>
 
                 {/* follow/unfollow for non-owners */}
                 {!isOwner && (

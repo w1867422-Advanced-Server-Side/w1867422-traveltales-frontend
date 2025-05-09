@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from './api';
+import * as authApi from "../auth/api";
 
 export const usePosts = (filters={}) =>
     useInfiniteQuery({
@@ -73,3 +74,23 @@ export const useUnvoteMutation = () => {
         onSuccess : (_, { id }) => invalidate(qc, id)
     });
 };
+
+export const useFeed = ({
+                            limit   = 10,
+                            sortBy  = 'newest'
+                        } = {}) =>
+    useInfiniteQuery({
+        queryKey: ['feed', limit, sortBy],
+        queryFn : ({ pageParam = 0 }) =>
+            api.fetchFeed({ limit, offset: pageParam, sortBy }),
+        getNextPageParam: (lastPage, allPages) =>
+            lastPage.length < limit ? undefined : allPages.length * limit
+    });
+
+/** All users the logged-in user currently follow */
+export const useFollowing = () =>
+    useQuery({
+        queryKey: ['following'],
+        queryFn : authApi.listFollowing,     // GET /follows/following
+        staleTime: 30_000
+    });

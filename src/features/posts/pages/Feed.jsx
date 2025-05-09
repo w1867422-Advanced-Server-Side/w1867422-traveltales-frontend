@@ -1,9 +1,9 @@
 import React from 'react';
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
-import { usePosts } from '../hooks';
+import { useFeed } from '../hooks';
 import PostCard from '../../../components/PostCard';
 
-export default function PostList() {
+export default function Feed() {
     const {
         data,
         isLoading,
@@ -11,7 +11,7 @@ export default function PostList() {
         fetchNextPage,
         hasNextPage,
         isFetching
-    } = usePosts({});
+    } = useFeed({ limit: 10, sortBy: 'newest' });
 
     if (isLoading) {
         return (
@@ -23,7 +23,7 @@ export default function PostList() {
     if (isError) {
         return (
             <Typography color="error" sx={{ mt: 4, textAlign: 'center' }}>
-                Failed to load posts.
+                Error loading your feed.
             </Typography>
         );
     }
@@ -32,6 +32,14 @@ export default function PostList() {
 
     return (
         <Box sx={{ p: 2 }}>
+            <Typography variant="h4" gutterBottom>
+                My Feed
+            </Typography>
+
+            {posts.length === 0 && (
+                <Typography>You’re not following anyone yet.</Typography>
+            )}
+
             {posts.map(post => (
                 <PostCard key={post.id} post={post} />
             ))}

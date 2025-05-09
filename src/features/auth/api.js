@@ -17,7 +17,7 @@ export const profile = () =>
 export const logout = () =>
     apiClient.post('/auth/logout').then(r => r.data);
 
-export const getFollowing    = ()    =>
+export const listFollowing    = ()    =>
     apiClient.get('/follows/following').then(r => r.data);
 
 export const followUser      = id    =>

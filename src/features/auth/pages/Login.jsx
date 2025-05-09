@@ -14,7 +14,7 @@ export default function Login() {
         e.preventDefault();
         try {
             await login(email,password);
-            navigate('/posts');
+            navigate('/feed');
         } catch (e) {
             setErr(e.response?.data?.error || 'Login failed');
         }

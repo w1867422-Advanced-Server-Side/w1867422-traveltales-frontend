@@ -18,3 +18,12 @@ export const getUserVote  = id => apiClient.get(`/posts/${id}/vote`).then(r => r
 export const likePost     = id => apiClient.post(`/posts/${id}/like`);
 export const dislikePost  = id => apiClient.post(`/posts/${id}/dislike`);
 export const unvotePost   = id => apiClient.delete(`/posts/${id}/vote`);
+
+export const fetchFeed = ({
+                              limit  = 10,
+                              offset = 0,
+                              sortBy = 'newest'       // 'likes' | 'comments'
+                          }) =>
+    apiClient
+        .get('/posts/feed', { params: { limit, offset, sortBy } })
+        .then(r => r.data);
