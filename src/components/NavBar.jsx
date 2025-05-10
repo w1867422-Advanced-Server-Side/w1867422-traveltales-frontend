@@ -63,6 +63,13 @@ export default function NavBar() {
                             <Button
                                 color="inherit"
                                 component={RouterLink}
+                                to="/posts"
+                            >
+                                Search
+                            </Button>
+                            <Button
+                                color="inherit"
+                                component={RouterLink}
                                 to="/feed"
                             >
                                 My Feed

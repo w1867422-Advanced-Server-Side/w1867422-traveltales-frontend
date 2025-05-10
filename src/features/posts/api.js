@@ -1,6 +1,20 @@
 import apiClient from '../../api/apiClient';
 
-export const listPosts  = (params) => apiClient.get('/posts', { params }).then(r=>r.data);
+export const listPosts = ({
+                              search   = '',
+                              type     = 'title',        // title | author | country
+                              country  = '',
+                              author   = '',
+                              sortBy   = 'newest',       // newest | likes | comments
+                              limit    = 10,
+                              offset   = 0,
+                          } = {}) =>
+    apiClient
+        .get('/posts', {
+            params: { search, type, country, author, sortBy, limit, offset }
+        })
+        .then(r => r.data);
+
 export const getPost    = (id)     => apiClient.get(`/posts/${id}`).then(r=>r.data);
 
 export const createPost = (formData)=> apiClient.post('/posts', formData, {
@@ -22,8 +36,10 @@ export const unvotePost   = id => apiClient.delete(`/posts/${id}/vote`);
 export const fetchFeed = ({
                               limit  = 10,
                               offset = 0,
-                              sortBy = 'newest'       // 'likes' | 'comments'
-                          }) =>
+                              sortBy = 'newest',
+                              search = '',
+                              type   = 'title'
+                          } = {}) =>
     apiClient
-        .get('/posts/feed', { params: { limit, offset, sortBy } })
+        .get('/posts/feed', { params: { limit, offset, sortBy, search, type } })
         .then(r => r.data);
