@@ -1,7 +1,7 @@
-import React from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '../hooks';
-import { usePosts, useDeletePost } from '../../posts/hooks';
+import React from 'react'
+import { useNavigate, Link as RouterLink } from 'react-router-dom'
+import { useAuth } from '../hooks'
+import { usePosts, useDeletePost } from '../../posts/hooks'
 import {
     Container,
     Box,
@@ -13,46 +13,61 @@ import {
     IconButton,
     CircularProgress,
     Alert
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+} from '@mui/material'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 export default function Profile() {
-    const { user, bootDone } = useAuth();
-    const { data, status, error } = usePosts({ limit: 1000, offset: 0 });
-    const navigate = useNavigate();
+    const { user, bootDone } = useAuth()
+    const navigate           = useNavigate()
 
-    // Mutation to delete a post
-    const deletePost = useDeletePost();
+    const {
+        data,
+        isLoading,
+        isError,
+        error
+    } = usePosts({ limit: 1000, offset: 0 })
 
-    // Handler
-    const handleDelete = id => {
-        if (window.confirm('Are you sure you want to delete this post?')) {
-            deletePost.mutate(id, {
-                onSuccess: () => navigate('/profile', { replace: true }),
-            });
+    const deletePost = useDeletePost()
+
+    const handleDelete = (postId) => {
+        if (!window.confirm('Are you sure you want to delete this post?')) {
+            return
         }
-    };
+        deletePost.mutate(postId, {
+            onSuccess: () => {
+                // react-query will refetch the posts list for us
+                navigate('/profile', { replace: true })
+            }
+        })
+    }
 
-    if (!bootDone || status === 'loading') {
+    // wait until auth + posts are loaded
+    if (!bootDone || isLoading) {
         return (
-            <Box sx={{ display:'flex', justifyContent:'center', mt:4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
                 <CircularProgress />
             </Box>
-        );
-    }
-    if (status === 'error') {
-        return <Alert severity="error" sx={{ mt:4 }}>Failed to load posts</Alert>;
+        )
     }
 
-    const allPosts = (data?.pages ?? []).flat();
-    const myPosts = allPosts.filter(p => p.author_id === user.id);
+    if (isError) {
+        return (
+            <Alert severity="error" sx={{ mt: 4, textAlign: 'center' }}>
+                Failed to load posts: {error.message}
+            </Alert>
+        )
+    }
+
+    // flatten pages into one array
+    const allPosts = data?.pages?.flat() ?? []
+    const myPosts  = allPosts.filter(p => p.author_id === user.id)
 
     return (
-        <Container sx={{ mt:4 }}>
-            {/* User info */}
+        <Container sx={{ mt: 4 }}>
+            {/* --- user info --- */}
             <Box display="flex" alignItems="center" mb={4} gap={2}>
-                <Avatar sx={{ width:64, height:64 }}>
+                <Avatar sx={{ width: 64, height: 64 }}>
                     {user.username.charAt(0).toUpperCase()}
                 </Avatar>
                 <Box>
@@ -61,8 +76,10 @@ export default function Profile() {
                 </Box>
             </Box>
 
-            {/* My posts */}
-            <Typography variant="h6" gutterBottom>My Posts</Typography>
+            {/* --- my posts --- */}
+            <Typography variant="h6" gutterBottom>
+                My Posts
+            </Typography>
 
             {myPosts.length === 0 ? (
                 <Typography>No posts yet.</Typography>
@@ -102,10 +119,10 @@ export default function Profile() {
             )}
 
             {deletePost.isError && (
-                <Alert severity="error" sx={{ mt:2 }}>
+                <Alert severity="error" sx={{ mt: 2 }}>
                     {deletePost.error.message || 'Failed to delete post'}
                 </Alert>
             )}
         </Container>
-    );
+    )
 }

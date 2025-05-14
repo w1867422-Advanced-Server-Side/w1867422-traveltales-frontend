@@ -30,13 +30,15 @@ export const useUpdatePost = id =>{
         onSuccess:()=> qc.invalidateQueries(['post',id])
     });
 };
-export const useDeletePost = id =>{
+
+export const useDeletePost = () => {
     const qc = useQueryClient();
-    return useMutation({ mutationFn:()=>api.deletePost(id),
-        onSuccess:()=>{
+    return useMutation({
+        mutationFn: (postId) => api.deletePost(postId),
+        onSuccess: (_, postId) => {
             qc.invalidateQueries(['posts']);
-            qc.removeQueries(['post',id]);
-        }
+            qc.removeQueries(['post', postId]);
+        },
     });
 };
 
